@@ -1,0 +1,20 @@
+{
+  "Chat Gpt": [
+    {
+      "reason": "cwel",
+      "date": 1744824372743,
+      "expiresAt": 1744824432743,
+      "issuedBy": "Admin",
+      "issuedAt": 1744824372743
+    }
+  ],
+  "Stanisław Mordarski": [
+    {
+      "reason": "cwel adm",
+      "date": 1744827987169,
+      "expiresAt": 1744828047169,
+      "issuedBy": "Admin",
+      "issuedAt": 1744827987169
+    }
+  ]
+}

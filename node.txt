@@ -1,0 +1,128 @@
+const { firefox } = require('playwright'); // Importujemy Firefox z Playwright
+const axios = require('axios');
+
+const EMAIL = 'pazdanmargonewski@gmail.com';
+const PASSWORD = 'JnuszXDXD12';
+const API_KEY = "12b8db2791119ee41c7bd331128a4c35"; // Twój klucz API OpenWeather
+const WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather";
+const FORECAST_URL = "http://api.openweathermap.org/data/2.5/forecast";
+
+// Funkcja do pobierania pogody
+async function getWeather(city) {
+    try {
+        const response = await axios.get(WEATHER_URL, {
+            params: {
+                q: city,
+                appid: API_KEY,
+                units: "metric",
+                lang: "pl"
+            }
+        });
+
+        const data = response.data;
+        if (data.cod !== 200) {
+            return `❌ Nie znaleziono miasta: ${city}`;
+        }
+
+        const temp = data.main.temp;
+        const feels = data.main.feels_like;
+        const weather = data.weather[0].description;
+        const wind = data.wind.speed;
+        const humidity = data.main.humidity;
+
+        return `🌤️ Pogoda w ${city}:\n` +
+            `🌡️ Temperatura: ${temp}°C (odczuwalna: ${feels}°C)\n` +
+            `💧 Wilgotność: ${humidity}%\n` +
+            `💨 Wiatr: ${wind} m/s\n` +
+            `Opis: ${weather}`;
+    } catch (error) {
+        return `⚠️ Błąd pobierania pogody: ${error.message}`;
+    }
+}
+
+// Funkcja do pobierania prognozy
+async function getForecast(city) {
+    try {
+        const response = await axios.get(FORECAST_URL, {
+            params: {
+                q: city,
+                appid: API_KEY,
+                units: "metric",
+                lang: "pl"
+            }
+        });
+
+        const data = response.data;
+        if (data.cod !== "200") {
+            return "Nie udało się pobrać prognozy. Sprawdź nazwę miasta.";
+        }
+
+        let forecastMessage = `📍 Prognoza dla miasta ${city}:\n`;
+        data.list.slice(0, 3).forEach(entry => {
+            const date = entry.dt_txt.split(" ")[0];
+            const temp = entry.main.temp;
+            const weather = entry.weather[0].description;
+            const wind = entry.wind.speed;
+
+            forecastMessage += `📅 ${date} - ${weather}\n` +
+                `🌡️ Temperatura: ${temp}°C, 💨 Wiatr: ${wind} m/s\n`;
+        });
+
+        return forecastMessage;
+    } catch (error) {
+        return `⚠️ Błąd pobierania prognozy: ${error.message}`;
+    }
+}
+
+// Funkcja do logowania i wysyłania wiadomości na Facebooku
+async function runBot() {
+    const browser = await firefox.launch({ headless: false }); // Używamy tylko Firefox
+    const page = await browser.newPage();
+
+    await page.goto('https://www.facebook.com/messages');
+    await page.waitForSelector('#email');
+    
+    // Logowanie
+    await page.fill('#email', EMAIL);
+    await page.fill('#pass', PASSWORD);
+    await page.click('[name="login"]');
+    await page.waitForNavigation();
+    console.log("[+] Zalogowano do Facebooka.");
+
+    // Monitorowanie wiadomości
+    while (true) {
+        const messages = await page.$$eval('[aria-label="Wiadomość"]', elements =>
+            elements.map(el => el.textContent.trim())
+        );
+        
+        for (const msg of messages) {
+            if (msg.toLowerCase().includes('!pogoda')) {
+                const city = msg.split('!pogoda')[1].trim();
+                if (city) {
+                    const weather = await getWeather(city);
+                    await sendMessage(page, weather);
+                }
+            } else if (msg.toLowerCase().includes('!prognoza')) {
+                const city = msg.split('!prognoza')[1].trim();
+                if (city) {
+                    const forecast = await getForecast(city);
+                    await sendMessage(page, forecast);
+                }
+            }
+        }
+
+        await page.waitForTimeout(2000); // Czekaj 2 sekundy przed kolejnym sprawdzeniem wiadomości
+    }
+}
+
+// Funkcja do wysyłania wiadomości
+async function sendMessage(page, message) {
+    const inputBox = await page.$('[aria-label="Wpisz wiadomość"]');
+    if (inputBox) {
+        await inputBox.type(message);
+        await inputBox.press('Enter');
+        console.log(`[BOT] Wysłano wiadomość: ${message}`);
+    }
+}
+
+runBot().catch(err => console.log('[!] Błąd: ', err));
