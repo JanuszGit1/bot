@@ -68,7 +68,7 @@ async function runBot() {
         // Załadowanie ciasteczek, jeśli istnieją
         if (fs.existsSync('cookies.json')) {
             const cookies = JSON.parse(fs.readFileSync('cookies.json', 'utf-8'));
-            await page.goto('https://www.facebook.com/messages/t/10058613034149469', { waitUntil: 'domcontentloaded' });
+            await page.goto('https://www.facebook.com/messages/t/9873340259342833', { waitUntil: 'domcontentloaded' });
             await page.context().addCookies(cookies);
             await page.reload();  // Konieczne po dodaniu ciasteczek
             console.log("[🍪] Załadowano zapisane ciasteczka.");
