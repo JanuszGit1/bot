@@ -75,13 +75,16 @@ async function runBot() {
     let page;
 
     try {
-        browser = await firefox.launch({ headless: false });  // Uruchomienie w trybie headless
+        browser = await firefox.launch({ headless: true });  // Uruchomienie w trybie headless
         page = await browser.newPage();
 
         // Załadowanie ciasteczek, jeśli istnieją
         if (fs.existsSync('cookies.json')) {
             const cookies = JSON.parse(fs.readFileSync('cookies.json', 'utf-8'));
-            await page.goto('https://www.facebook.com/messages/t/9873340259342833', { waitUntil: 'domcontentloaded' });
+            const targetUrl = 'https://www.facebook.com/messages/t/9873340259342833';
+	console.log(`🌐 Wchodzę na stronę: ${targetUrl} ...`);
+	await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
+	console.log("✅ Strona załadowana!");
             await page.context().addCookies(cookies);
             await page.reload();  // Konieczne po dodaniu ciasteczek
             console.log("[🍪] Załadowano zapisane ciasteczka.");
