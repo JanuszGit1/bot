@@ -995,6 +995,11 @@ async function saveGroupMembersToFile(page) {
 });
 
 const http = require('http');
+const PORT = process.env.PORT || 3000;
+
 http.createServer((req, res) => {
-  res.end('Bot działa ✔️');
-}).listen(process.env.PORT || 3000);
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot działa ✔️\n');
+}).listen(PORT, () => {
+  console.log(`Serwer nasłuchuje na porcie ${PORT}`);
+});
