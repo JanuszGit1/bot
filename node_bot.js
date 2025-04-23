@@ -3,7 +3,6 @@ const { getForecast } = require('./weather');
 const { getCurrentWeather } = require('./weather_command');
 const { getRandomMeme } = require('./mem');
 const https = require('https');
-const robot = require('robotjs');
 const { exec, execSync } = require('child_process');
 const rules = require('./rules');
 const { getGroupInfo } = require('./info');
