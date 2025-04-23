@@ -46,6 +46,20 @@ function isNewCommand(text) {
     return true;
 }
 
+async function ensureFirefoxInstalled() {
+    const browserPath = '/opt/render/.cache/ms-playwright/firefox-1482/firefox/firefox';
+    if (!fs.existsSync(browserPath)) {
+        console.log('🔥 Firefox nie znaleziony, instaluję...');
+        try {
+            execSync('npx playwright install firefox', { stdio: 'inherit' });
+        } catch (err) {
+            console.error('❌ Błąd podczas instalacji Firefoxa:', err);
+        }
+    } else {
+        console.log('✅ Firefox już zainstalowany.');
+    }
+}
+
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -76,19 +90,6 @@ async function runBot() {
             await login(page); // Funkcja login do zaimplementowania
         }
 
-        const inputBoxSelector = '[contenteditable="true"]';
-        await page.waitForSelector(inputBoxSelector);
-        console.log("[✅] Pole do wpisywania wiadomości załadowane!");
-
-        // === Pobierz członków ===
-        const members = await getGroupMembers(page);
-        if (!Array.isArray(members) || members.length === 0) {
-            console.warn("[⚠️] Lista członków pusta.");
-        } else {
-            fs.writeFileSync('data.json', JSON.stringify({ members }, null, 2));
-            console.log(`[💾] Zapisano ${members.length} członków do data.json`);
-            console.table(members);
-        }
 
         // Pętla nasłuchująca nowe wiadomości
         while (true) {
@@ -984,9 +985,11 @@ async function saveGroupMembersToFile(page) {
 
     fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
     console.log(`[✅] Zapisano ${members.length} członków do data.json o ${timestamp}`);
-}
 
-runBot().catch(err => {
+}(async () => {
+    await ensureFirefoxInstalled();
+    await runBot();
+})().catch(err => {
     console.error('[ERROR] Błąd w głównym procesie:', err);
     process.exit(1); // Zakończenie procesu z kodem błędu
 });
