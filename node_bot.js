@@ -75,7 +75,7 @@ async function runBot() {
     let page;
 
     try {
-        browser = await firefox.launch({ headless: true });  // Uruchomienie w trybie headless
+        browser = await firefox.launch({ headless: false });  // Uruchomienie w trybie headless
         page = await browser.newPage();
 
         // Załadowanie ciasteczek, jeśli istnieją
