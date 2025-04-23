@@ -47,8 +47,8 @@ function isNewCommand(text) {
 }
 
 async function ensureFirefoxInstalled() {
-    const browserPath = '/opt/render/.cache/ms-playwright/firefox-1482/firefox/firefox';
-    if (!fs.existsSync(browserPath)) {
+    const firefoxPath = path.join(__dirname, 'firefox', 'firefox'); // Ścieżka do Twojego folderu z Firefoksem
+    if (!fs.existsSync(firefoxPath)) {
         console.log('🔥 Firefox nie znaleziony, instaluję...');
         try {
             execSync('npx playwright install firefox', { stdio: 'inherit' });
@@ -75,16 +75,28 @@ async function runBot() {
     let page;
 
     try {
-        browser = await firefox.launch({ headless: true });  // Uruchomienie w trybie headless
+        // Sprawdzenie, czy Firefox jest zainstalowany
+        const firefoxPath = path.join(__dirname, 'firefox', 'firefox');
+        if (fs.existsSync(firefoxPath)) {
+            browser = await firefox.launch({
+                headless: true,
+                executablePath: firefoxPath // Użyj lokalnej wersji Firefoxa
+            });
+            console.log("🔥 Używamy lokalnej wersji Firefoxa...");
+        } else {
+            browser = await firefox.launch({ headless: true });
+            console.log("🔥 Firefox nie został znaleziony, uruchamiamy go w trybie automatycznym.");
+        }
+
         page = await browser.newPage();
 
         // Załadowanie ciasteczek, jeśli istnieją
         if (fs.existsSync('cookies.json')) {
             const cookies = JSON.parse(fs.readFileSync('cookies.json', 'utf-8'));
             const targetUrl = 'https://www.facebook.com/messages/t/9873340259342833';
-	console.log(`🌐 Wchodzę na stronę: ${targetUrl} ...`);
-	await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
-	console.log("✅ Strona załadowana!");
+            console.log(`🌐 Wchodzę na stronę: ${targetUrl} ...`);
+            await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 }); // Zwiększony timeout
+            console.log("✅ Strona załadowana!");
             await page.context().addCookies(cookies);
             await page.reload();  // Konieczne po dodaniu ciasteczek
             console.log("[🍪] Załadowano zapisane ciasteczka.");
@@ -92,7 +104,6 @@ async function runBot() {
             console.log("[🔐] Brak ciasteczek, logowanie...");
             await login(page); // Funkcja login do zaimplementowania
         }
-
 
         // Pętla nasłuchująca nowe wiadomości
         while (true) {
