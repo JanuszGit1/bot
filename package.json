@@ -4,7 +4,7 @@
   "main": "node_bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "npx playwright install",
+    "install": "npx playwright install",  // Dodanie tej komendy
     "start": "node node_bot.js"
   },
   "keywords": [],
@@ -24,4 +24,3 @@
   },
   "description": ""
 }
-
