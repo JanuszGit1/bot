@@ -4,7 +4,7 @@
   "main": "node_bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "npm install && npx playwright install firefox",
+    "install": "npx playwright install firefox",
     "start": "node node_bot.js"
   },
   "keywords": [],
