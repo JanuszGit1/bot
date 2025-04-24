@@ -96,6 +96,11 @@ async function runBot() {
             console.log(`🌐 Wchodzę na stronę: ${targetUrl} ...`);
             await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 }); // Zwiększony timeout
             console.log("✅ Strona załadowana!");
+            
+            // Robienie screenshotu po załadowaniu strony
+            console.log("📸 Robię screenshot po załadowaniu strony...");
+            await page.screenshot({ path: 'after_page_load.png', fullPage: true });
+
             await page.context().addCookies(cookies);
             await page.reload();  // Konieczne po dodaniu ciasteczek
             console.log("[🍪] Załadowano zapisane ciasteczka.");
@@ -103,10 +108,6 @@ async function runBot() {
             console.log("[🔐] Brak ciasteczek, logowanie...");
             await login(page); // Funkcja login do zaimplementowania
         }
-
-        // Screenshot przed reloadem
-        console.log("📸 Robię screenshot przed reloadem...");
-        await page.screenshot({ path: 'before_reload.png', fullPage: true });
 
         // Pętla nasłuchująca nowe wiadomości
         while (true) {
@@ -135,11 +136,7 @@ async function runBot() {
                 }
                 userData[userName].messages += 1;  // Zwiększamy licznik wiadomości użytkownika
 
-                console.log(`[📥] Nowa wiadomość od: ${userName} | Treść: ${currentText}`);
-
-                // Screenshot po przetworzeniu wiadomości
-                console.log("📸 Robię screenshot po przetworzeniu wiadomości...");
-                await page.screenshot({ path: 'after_message_processing.png', fullPage: true });
+                console.log(`[📥] Nowa wiadomość od: ${userName} | Treść: ${currentText}`)
 
                 // General reactions
                 if (/xd|xD|XD|siemka|hej|yo/i.test(currentText)) {
