@@ -76,17 +76,17 @@ async function runBot() {
 
     try {
         const firefoxPath = path.join(__dirname, 'firefox', 'firefox');
-if (fs.existsSync(firefoxPath)) {
-    browser = await firefox.launch({
-        headless: true,
-        executablePath: firefoxPath,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    console.log("🔥 Używamy lokalnej wersji Firefoxa...");
-} else {
-    browser = await firefox.launch({ headless: true });
-    console.log("🔥 Firefox nie został znaleziony, uruchamiamy go w trybie automatycznym.");
-}
+        if (fs.existsSync(firefoxPath)) {
+            browser = await firefox.launch({
+                headless: true,
+                executablePath: firefoxPath,
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+            console.log("🔥 Używamy lokalnej wersji Firefoxa...");
+        } else {
+            browser = await firefox.launch({ headless: true });
+            console.log("🔥 Firefox nie został znaleziony, uruchamiamy go w trybie automatycznym.");
+        }
         page = await browser.newPage();
 
         // Załadowanie ciasteczek, jeśli istnieją
@@ -103,6 +103,10 @@ if (fs.existsSync(firefoxPath)) {
             console.log("[🔐] Brak ciasteczek, logowanie...");
             await login(page); // Funkcja login do zaimplementowania
         }
+
+        // Screenshot przed reloadem
+        console.log("📸 Robię screenshot przed reloadem...");
+        await page.screenshot({ path: 'before_reload.png', fullPage: true });
 
         // Pętla nasłuchująca nowe wiadomości
         while (true) {
@@ -132,6 +136,10 @@ if (fs.existsSync(firefoxPath)) {
                 userData[userName].messages += 1;  // Zwiększamy licznik wiadomości użytkownika
 
                 console.log(`[📥] Nowa wiadomość od: ${userName} | Treść: ${currentText}`);
+
+                // Screenshot po przetworzeniu wiadomości
+                console.log("📸 Robię screenshot po przetworzeniu wiadomości...");
+                await page.screenshot({ path: 'after_message_processing.png', fullPage: true });
 
                 // General reactions
                 if (/xd|xD|XD|siemka|hej|yo/i.test(currentText)) {
