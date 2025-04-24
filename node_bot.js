@@ -70,21 +70,21 @@ async function runBot() {
         return;
     }
 
-    isBusy = true; // Zmienna kontrolująca stan bota
+    isBusy = true;
     let browser;
     let page;
 
     try {
-        // Sprawdzenie, czy Firefox jest zainstalowany
         const firefoxPath = path.join(__dirname, 'firefox', 'firefox');
         if (fs.existsSync(firefoxPath)) {
-            browser = await firefox.launch({
+            browser = await playwright.firefox.launch({
                 headless: true,
-                executablePath: firefoxPath // Użyj lokalnej wersji Firefoxa
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                executablePath: firefoxPath
             });
             console.log("🔥 Używamy lokalnej wersji Firefoxa...");
         } else {
-            browser = await firefox.launch({ headless: true });
+            browser = await playwright.firefox.launch({ headless: true });
             console.log("🔥 Firefox nie został znaleziony, uruchamiamy go w trybie automatycznym.");
         }
 
