@@ -76,18 +76,17 @@ async function runBot() {
 
     try {
         const firefoxPath = path.join(__dirname, 'firefox', 'firefox');
-        if (fs.existsSync(firefoxPath)) {
-            browser = await firefox.launch({
-            headless: true,
-	    executablePath: firefoxPath,
-	    args: ['--no-sandbox', '--disable-setuid-sandbox']
-	});
-            console.log("🔥 Używamy lokalnej wersji Firefoxa...");
-        } else {
-            browser = await playwright.firefox.launch({ headless: true });
-            console.log("🔥 Firefox nie został znaleziony, uruchamiamy go w trybie automatycznym.");
-        }
-
+if (fs.existsSync(firefoxPath)) {
+    browser = await firefox.launch({
+        headless: true,
+        executablePath: firefoxPath,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    console.log("🔥 Używamy lokalnej wersji Firefoxa...");
+} else {
+    browser = await firefox.launch({ headless: true });
+    console.log("🔥 Firefox nie został znaleziony, uruchamiamy go w trybie automatycznym.");
+}
         page = await browser.newPage();
 
         // Załadowanie ciasteczek, jeśli istnieją
